@@ -40,7 +40,7 @@ module Rbain
       i = 0
 
       stack = []
-      jump = [nil] * @program.length
+      jump = []
       @program.each_char.with_index do |e, ix|
         if e == '['
           stack.append(ix)
