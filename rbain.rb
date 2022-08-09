@@ -5,7 +5,7 @@ module Rbain
     attr_accessor :ptr, :table
 
     def initialize(s = 30_000)
-      @table = Array.new(3000, 0)
+      @table = Array.new(s, 0)
       @ptr = 0
     end
 
@@ -38,7 +38,18 @@ module Rbain
 
     def run
       i = 0
-      
+
+      stack = []
+      jump = [nil] * @program.length
+      @program.each_char.with_index do |e, ix|
+        if e == '['
+          stack.append(ix)
+        elsif e == ']'
+          jump[ix] = stack.pop()
+          jump[jump[ix]] = ix
+        end
+      end
+
       while i < @program.length do
         case @program[i]
           when '>'
@@ -53,10 +64,17 @@ module Rbain
             print @mem.value.chr
           when ','
             @mem.table[i] = STDIN.noecho(&:getch).ord
+          when '['
+            if @mem.value == 0
+              i = jump[i]
+            end
+          when ']'
+            if @mem.value > 0
+              i = jump[i]
+            end
         end
         i += 1
       end
-      puts
     end
   end
 
@@ -67,4 +85,4 @@ module Rbain
   end
 end
 
-# Rbain.interpret(">++++++++[<+++++++++>-]<.>++++[<+++++++>-]<+.+++++++..+++.>>++++++[<+++++++>-]<++.------------.>++++++[<+++++++++>-]<+.<.+++.------.--------.>>>++++[<++++++++>-]<+.")
+Rbain.interpret(">+++++++++[<++++++++>-]<.>+++++++[<++++>-]<+.+++++++..+++.[-]>++++++++[<++++>-] <.>+++++++++++[<++++++++>-]<-.--------.+++.------.--------.[-]>++++++++[<++++>- ]<+.[-]++++++++++.")
