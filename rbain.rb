@@ -26,7 +26,16 @@ module Rbain
     end
 
     def value
+      check_ptr
       @table[@ptr]
+    end
+
+    def set(v)
+      @table[@ptr] = v
+    end
+
+    def check_ptr
+      raise "Attempting to index value outside of tape! length: #{@table.count - 1} pointer: #{@ptr}" if ptr < 0 || ptr > table.count - 1
     end
   end
 
@@ -45,10 +54,12 @@ module Rbain
         if e == '['
           stack.append(ix)
         elsif e == ']'
+          raise 'found ] without [' if stack.empty?
           jump[ix] = stack.pop()
           jump[jump[ix]] = ix
         end
       end
+      raise 'found [ without ]' if !stack.empty?
 
       while i < @program.length do
         case @program[i]
@@ -63,15 +74,11 @@ module Rbain
           when '.'
             print @mem.value.chr
           when ','
-            @mem.table[i] = STDIN.noecho(&:getch).ord
+            @mem.set(STDIN.noecho(&:getch).ord)
           when '['
-            if @mem.value == 0
-              i = jump[i]
-            end
+              i = jump[i] if @mem.value == 0
           when ']'
-            if @mem.value > 0
-              i = jump[i]
-            end
+              i = jump[i]  if @mem.value != 0
         end
         i += 1
       end
