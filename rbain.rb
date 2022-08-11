@@ -43,11 +43,10 @@ module Rbain
     def initialize(program)
       @mem = Memory.new
       @program = program
+      @jump = parse_loops
     end
 
-    def run
-      i = 0
-
+    def parse_loops
       stack = []
       jump = []
       @program.each_char.with_index do |e, ix|
@@ -60,6 +59,11 @@ module Rbain
         end
       end
       raise 'found [ without ]' if !stack.empty?
+      jump
+    end
+
+    def run
+      i = 0
 
       while i < @program.length do
         case @program[i]
@@ -76,9 +80,9 @@ module Rbain
           when ','
             @mem.set(STDIN.noecho(&:getch).ord)
           when '['
-              i = jump[i] if @mem.value == 0
+              i = @jump[i] if @mem.value == 0
           when ']'
-              i = jump[i]  if @mem.value != 0
+              i = @jump[i]  if @mem.value != 0
         end
         i += 1
       end
