@@ -1,3 +1,4 @@
+#!/usr/bin/ruby
 require 'io/console'
 
 module Rbain
@@ -93,7 +94,31 @@ module Rbain
     def interpret(code)
       Interpreter.new(code).run
     end
+
+    def interpret_file(path)
+      code = File.open(path).read
+      Rbain.interpret(code)
+    end
   end
 end
 
-Rbain.interpret(">+++++++++[<++++++++>-]<.>+++++++[<++++>-]<+.+++++++..+++.[-]>++++++++[<++++>-] <.>+++++++++++[<++++++++>-]<-.--------.+++.------.--------.[-]>++++++++[<++++>- ]<+.[-]++++++++++.")
+def help
+  str = "BRAINFUCK interpreter written in Ruby
+Example: './rbain.rb 'brainuck_code'\n
+-f |   ./rbain.rb -f 'path'  | Interprete file
+-h |   Display help message\n"
+
+  puts str
+end
+
+if ARGV.count == 1 && ARGV[0] == "-h" || !(1..2).include?(ARGV.count)
+  help
+end
+
+if ARGV.count == 2 && ARGV[0] == "-f"
+  Rbain.interpret_file(ARGV[1])
+end
+
+if ARGV.count == 1
+  Rbain.interpret(ARGV[0])
+end
